@@ -1,0 +1,154 @@
+<html>
+<head>
+<title>LoginActivity.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+LoginActivity.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com.ods.myapplication.ui.login</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">android.app.Activity</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">androidx.lifecycle.Observer</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">androidx.lifecycle.ViewModelProvider</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">android.os.Bundle</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">androidx.annotation.Nullable</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">androidx.annotation.StringRes</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">androidx.appcompat.app.AppCompatActivity</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">android.text.Editable</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.text.TextWatcher</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.view.KeyEvent</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.view.View</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.view.inputmethod.EditorInfo</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.widget.Button</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.widget.EditText</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.widget.ProgressBar</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.widget.TextView</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">android.widget.Toast</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">com.ods.myapplication.R</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">com.ods.myapplication.ui.login.LoginViewModel</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">com.ods.myapplication.ui.login.LoginViewModelFactory</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">com.ods.myapplication.databinding.ActivityLoginBinding</span><span class="s0">;</span>
+
+<span class="s0">public class </span><span class="s1">LoginActivity </span><span class="s0">extends </span><span class="s1">AppCompatActivity {</span>
+
+    <span class="s0">private </span><span class="s1">LoginViewModel loginViewModel</span><span class="s0">;</span>
+    <span class="s0">private </span><span class="s1">ActivityLoginBinding binding</span><span class="s0">;</span>
+
+    <span class="s1">@Override</span>
+    <span class="s0">public void </span><span class="s1">onCreate(Bundle savedInstanceState) {</span>
+        <span class="s0">super</span><span class="s1">.onCreate(savedInstanceState)</span><span class="s0">;</span>
+
+        <span class="s1">binding = ActivityLoginBinding.inflate(getLayoutInflater())</span><span class="s0">;</span>
+        <span class="s1">setContentView(binding.getRoot())</span><span class="s0">;</span>
+
+        <span class="s1">loginViewModel = </span><span class="s0">new </span><span class="s1">ViewModelProvider(</span><span class="s0">this, new </span><span class="s1">LoginViewModelFactory())</span>
+                <span class="s1">.get(LoginViewModel.</span><span class="s0">class</span><span class="s1">)</span><span class="s0">;</span>
+
+        <span class="s0">final </span><span class="s1">EditText usernameEditText = binding.username</span><span class="s0">;</span>
+        <span class="s0">final </span><span class="s1">EditText passwordEditText = binding.password</span><span class="s0">;</span>
+        <span class="s0">final </span><span class="s1">Button loginButton = binding.login</span><span class="s0">;</span>
+        <span class="s0">final </span><span class="s1">ProgressBar loadingProgressBar = binding.loading</span><span class="s0">;</span>
+
+        <span class="s1">loginViewModel.getLoginFormState().observe(</span><span class="s0">this, new </span><span class="s1">Observer&lt;LoginFormState&gt;() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onChanged(@Nullable LoginFormState loginFormState) {</span>
+                <span class="s0">if </span><span class="s1">(loginFormState == </span><span class="s0">null</span><span class="s1">) {</span>
+                    <span class="s0">return;</span>
+                <span class="s1">}</span>
+                <span class="s1">loginButton.setEnabled(loginFormState.isDataValid())</span><span class="s0">;</span>
+                <span class="s0">if </span><span class="s1">(loginFormState.getUsernameError() != </span><span class="s0">null</span><span class="s1">) {</span>
+                    <span class="s1">usernameEditText.setError(getString(loginFormState.getUsernameError()))</span><span class="s0">;</span>
+                <span class="s1">}</span>
+                <span class="s0">if </span><span class="s1">(loginFormState.getPasswordError() != </span><span class="s0">null</span><span class="s1">) {</span>
+                    <span class="s1">passwordEditText.setError(getString(loginFormState.getPasswordError()))</span><span class="s0">;</span>
+                <span class="s1">}</span>
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+
+        <span class="s1">loginViewModel.getLoginResult().observe(</span><span class="s0">this, new </span><span class="s1">Observer&lt;LoginResult&gt;() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onChanged(@Nullable LoginResult loginResult) {</span>
+                <span class="s0">if </span><span class="s1">(loginResult == </span><span class="s0">null</span><span class="s1">) {</span>
+                    <span class="s0">return;</span>
+                <span class="s1">}</span>
+                <span class="s1">loadingProgressBar.setVisibility(View.GONE)</span><span class="s0">;</span>
+                <span class="s0">if </span><span class="s1">(loginResult.getError() != </span><span class="s0">null</span><span class="s1">) {</span>
+                    <span class="s1">showLoginFailed(loginResult.getError())</span><span class="s0">;</span>
+                <span class="s1">}</span>
+                <span class="s0">if </span><span class="s1">(loginResult.getSuccess() != </span><span class="s0">null</span><span class="s1">) {</span>
+                    <span class="s1">updateUiWithUser(loginResult.getSuccess())</span><span class="s0">;</span>
+                <span class="s1">}</span>
+                <span class="s1">setResult(Activity.RESULT_OK)</span><span class="s0">;</span>
+
+                <span class="s2">//Complete and destroy login activity once successful</span>
+                <span class="s1">finish()</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+
+        <span class="s1">TextWatcher afterTextChangedListener = </span><span class="s0">new </span><span class="s1">TextWatcher() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">beforeTextChanged(CharSequence s</span><span class="s0">, int </span><span class="s1">start</span><span class="s0">, int </span><span class="s1">count</span><span class="s0">, int </span><span class="s1">after) {</span>
+                <span class="s2">// ignore</span>
+            <span class="s1">}</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onTextChanged(CharSequence s</span><span class="s0">, int </span><span class="s1">start</span><span class="s0">, int </span><span class="s1">before</span><span class="s0">, int </span><span class="s1">count) {</span>
+                <span class="s2">// ignore</span>
+            <span class="s1">}</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">afterTextChanged(Editable s) {</span>
+                <span class="s1">loginViewModel.loginDataChanged(usernameEditText.getText().toString()</span><span class="s0">,</span>
+                        <span class="s1">passwordEditText.getText().toString())</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">}</span><span class="s0">;</span>
+        <span class="s1">usernameEditText.addTextChangedListener(afterTextChangedListener)</span><span class="s0">;</span>
+        <span class="s1">passwordEditText.addTextChangedListener(afterTextChangedListener)</span><span class="s0">;</span>
+        <span class="s1">passwordEditText.setOnEditorActionListener(</span><span class="s0">new </span><span class="s1">TextView.OnEditorActionListener() {</span>
+
+            <span class="s1">@Override</span>
+            <span class="s0">public boolean </span><span class="s1">onEditorAction(TextView v</span><span class="s0">, int </span><span class="s1">actionId</span><span class="s0">, </span><span class="s1">KeyEvent event) {</span>
+                <span class="s0">if </span><span class="s1">(actionId == EditorInfo.IME_ACTION_DONE) {</span>
+                    <span class="s1">loginViewModel.login(usernameEditText.getText().toString()</span><span class="s0">,</span>
+                            <span class="s1">passwordEditText.getText().toString())</span><span class="s0">;</span>
+                <span class="s1">}</span>
+                <span class="s0">return false;</span>
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+
+        <span class="s1">loginButton.setOnClickListener(</span><span class="s0">new </span><span class="s1">View.OnClickListener() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">onClick(View v) {</span>
+                <span class="s1">loadingProgressBar.setVisibility(View.VISIBLE)</span><span class="s0">;</span>
+                <span class="s1">loginViewModel.login(usernameEditText.getText().toString()</span><span class="s0">,</span>
+                        <span class="s1">passwordEditText.getText().toString())</span><span class="s0">;</span>
+            <span class="s1">}</span>
+        <span class="s1">})</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">updateUiWithUser(LoggedInUserView model) {</span>
+        <span class="s1">String welcome = getString(R.string.welcome) + model.getDisplayName()</span><span class="s0">;</span>
+        <span class="s2">// TODO : initiate successful logged in experience</span>
+        <span class="s1">Toast.makeText(getApplicationContext()</span><span class="s0">, </span><span class="s1">welcome</span><span class="s0">, </span><span class="s1">Toast.LENGTH_LONG).show()</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">private void </span><span class="s1">showLoginFailed(@StringRes Integer errorString) {</span>
+        <span class="s1">Toast.makeText(getApplicationContext()</span><span class="s0">, </span><span class="s1">errorString</span><span class="s0">, </span><span class="s1">Toast.LENGTH_SHORT).show()</span><span class="s0">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span></pre>
+</body>
+</html>

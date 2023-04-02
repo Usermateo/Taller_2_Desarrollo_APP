@@ -1,0 +1,90 @@
+<html>
+<head>
+<title>LoginViewModel.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #808080;}
+.s3 { color: #6a8759;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+LoginViewModel.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">com.ods.myapplication.ui.login</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">androidx.lifecycle.LiveData</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">androidx.lifecycle.MutableLiveData</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">androidx.lifecycle.ViewModel</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">android.util.Patterns</span><span class="s0">;</span>
+
+<span class="s0">import </span><span class="s1">com.ods.myapplication.data.LoginRepository</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">com.ods.myapplication.data.Result</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">com.ods.myapplication.data.model.LoggedInUser</span><span class="s0">;</span>
+<span class="s0">import </span><span class="s1">com.ods.myapplication.R</span><span class="s0">;</span>
+
+<span class="s0">public class </span><span class="s1">LoginViewModel </span><span class="s0">extends </span><span class="s1">ViewModel {</span>
+
+    <span class="s0">private </span><span class="s1">MutableLiveData&lt;LoginFormState&gt; loginFormState = </span><span class="s0">new </span><span class="s1">MutableLiveData&lt;&gt;()</span><span class="s0">;</span>
+    <span class="s0">private </span><span class="s1">MutableLiveData&lt;LoginResult&gt; loginResult = </span><span class="s0">new </span><span class="s1">MutableLiveData&lt;&gt;()</span><span class="s0">;</span>
+    <span class="s0">private </span><span class="s1">LoginRepository loginRepository</span><span class="s0">;</span>
+
+    <span class="s1">LoginViewModel(LoginRepository loginRepository) {</span>
+        <span class="s0">this</span><span class="s1">.loginRepository = loginRepository</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s1">LiveData&lt;LoginFormState&gt; getLoginFormState() {</span>
+        <span class="s0">return </span><span class="s1">loginFormState</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s1">LiveData&lt;LoginResult&gt; getLoginResult() {</span>
+        <span class="s0">return </span><span class="s1">loginResult</span><span class="s0">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public void </span><span class="s1">login(String username</span><span class="s0">, </span><span class="s1">String password) {</span>
+        <span class="s2">// can be launched in a separate asynchronous job</span>
+        <span class="s1">Result&lt;LoggedInUser&gt; result = loginRepository.login(username</span><span class="s0">, </span><span class="s1">password)</span><span class="s0">;</span>
+
+        <span class="s0">if </span><span class="s1">(result </span><span class="s0">instanceof </span><span class="s1">Result.Success) {</span>
+            <span class="s1">LoggedInUser data = ((Result.Success&lt;LoggedInUser&gt;) result).getData()</span><span class="s0">;</span>
+            <span class="s1">loginResult.setValue(</span><span class="s0">new </span><span class="s1">LoginResult(</span><span class="s0">new </span><span class="s1">LoggedInUserView(data.getDisplayName())))</span><span class="s0">;</span>
+        <span class="s1">} </span><span class="s0">else </span><span class="s1">{</span>
+            <span class="s1">loginResult.setValue(</span><span class="s0">new </span><span class="s1">LoginResult(R.string.login_failed))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public void </span><span class="s1">loginDataChanged(String username</span><span class="s0">, </span><span class="s1">String password) {</span>
+        <span class="s0">if </span><span class="s1">(!isUserNameValid(username)) {</span>
+            <span class="s1">loginFormState.setValue(</span><span class="s0">new </span><span class="s1">LoginFormState(R.string.invalid_username</span><span class="s0">, null</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">} </span><span class="s0">else if </span><span class="s1">(!isPasswordValid(password)) {</span>
+            <span class="s1">loginFormState.setValue(</span><span class="s0">new </span><span class="s1">LoginFormState(</span><span class="s0">null, </span><span class="s1">R.string.invalid_password))</span><span class="s0">;</span>
+        <span class="s1">} </span><span class="s0">else </span><span class="s1">{</span>
+            <span class="s1">loginFormState.setValue(</span><span class="s0">new </span><span class="s1">LoginFormState(</span><span class="s0">true</span><span class="s1">))</span><span class="s0">;</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s2">// A placeholder username validation check</span>
+    <span class="s0">private boolean </span><span class="s1">isUserNameValid(String username) {</span>
+        <span class="s0">if </span><span class="s1">(username == </span><span class="s0">null</span><span class="s1">) {</span>
+            <span class="s0">return false;</span>
+        <span class="s1">}</span>
+        <span class="s0">if </span><span class="s1">(username.contains(</span><span class="s3">&quot;@&quot;</span><span class="s1">)) {</span>
+            <span class="s0">return </span><span class="s1">Patterns.EMAIL_ADDRESS.matcher(username).matches()</span><span class="s0">;</span>
+        <span class="s1">} </span><span class="s0">else </span><span class="s1">{</span>
+            <span class="s0">return </span><span class="s1">!username.trim().isEmpty()</span><span class="s0">;</span>
+        <span class="s1">}</span>
+    <span class="s1">}</span>
+
+    <span class="s2">// A placeholder password validation check</span>
+    <span class="s0">private boolean </span><span class="s1">isPasswordValid(String password) {</span>
+        <span class="s0">return </span><span class="s1">password != </span><span class="s0">null </span><span class="s1">&amp;&amp; password.trim().length() &gt; </span><span class="s4">5</span><span class="s0">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span></pre>
+</body>
+</html>
